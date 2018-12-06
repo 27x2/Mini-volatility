@@ -39,7 +39,10 @@ def dumpProc(file,profile,pid):
 
 #show connection
 def showCon(file,profile):
-	con=commands.getstatusoutput('volatility -f '+file+' --profile='+profile+' connections')
+	if "WinXP" in profile:
+		con=commands.getstatusoutput('volatility -f '+file+' --profile='+profile+' connscan')
+	else:
+		con=commands.getstatusoutput('volatility -f '+file+' --profile='+profile+' netscan')
 	if "The requested file doesn't exist" in con[1]:
 		print "\nWrong location of raw file"
 	else:
@@ -60,6 +63,19 @@ def dumpFile(file,profile,fid):
 		print "\nWrong fid please use option 3 to check again"
 	else:
 		print dumpf[1][46:]
+
+def showDll(file,profile,pid):
+	dll=commands.getstatusoutput('volatility -f '+file+' --profile='+profile+' dlllist -p '+pid)
+	if "The requested file doesn't exist" in dll[1]:
+		print "\nWrong location of raw file"
+	else:
+		print dll[1][46:]
+def hiddenDll(file,profile,pid):
+	dll=commands.getstatusoutput('volatility -f '+file+' --profile='+profile+' ldrmodules -p '+pid)
+	if "The requested file doesn't exist" in dll[1]:
+		print "\nWrong location of raw file"
+	else:
+		print dll[1][46:]
 
 def options(file):
 	profile = ""
@@ -111,6 +127,18 @@ def options(file):
 			else:
 				fid=raw_input("Enter file id:")
 				dumpFile(file,profile,fid)
+		elif choice ==9:
+			if profile == "":
+				print "\nPlease use option 2 to enter profile"
+			else:
+				pid=raw_input("Enter file id:")
+				showDll(file,profile,pid)
+		elif choice ==10:
+			if profile == "":
+				print "\nPlease use option 2 to enter profile"
+			else:
+				pid=raw_input("Enter file id:")
+				hiddenDll(file,profile,pid)
 
 def menu():
 	print """
@@ -122,14 +150,14 @@ def menu():
 		6. Show connection(s).
 		7. Find file.
 		8. Dump file.
+		9. Show dll.
+		10. Hidden dll.
 	"""
 
 def showhelp():
 	print """
 	Usage: python btt.py [OPTIONS]
-
 	[OPTIONS]
-
 	--file   [File location]
 	--help 	 [Show help]
 	"""
